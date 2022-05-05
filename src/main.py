@@ -86,12 +86,18 @@ class Trade:
 
     # グラフを表示する
     async def plot_graph(self, df):
-        df.plot("date", ["close", "SMA"])
-        plt.xlabel("Date")
-        plt.ylabel("Price")
+        plt.xlabel('Date')
+        plt.ylabel('Price')
         plt.xticks(rotation=20) #横軸目盛の傾き
-        yRange = [3000000, 3500000, 4000000, 4500000, 5000000, 5500000, 6000000, 6500000, 7000000, 7500000]
-        plt.yticks(yRange)
+        df["close"].plot(
+            grid=True,              # 罫線
+            figsize=(20,5),         # 描画サイズ。インチ（横、縦）
+            title="Close",          # グラフタイトル
+            legend=True,            # 凡例
+            rot=45,                 # xtick の ローテーション
+            fontsize=15,            # 文字サイズ
+            style={"close": "g--"}, # 色と線の種類,
+        );
         plt.show()
 
     # main logic
@@ -111,6 +117,17 @@ class Trade:
             print(df_day)
             print(df_4h)
             print(df_1h)
+
+            await self.plot_graph(df_1h)
+
+            #　重要なニュースや指標、FOMCの時はbotを止める
+
+            # 下降トレンド（長期足200SMAが100SMAよりも上にある）の時、短期足でボリンジャーバンドの高値にタッチしたら価格を変数に保持　
+            # その価格を現在価格が下回ったらショートでエントリー、安値タッチで利確　エントリー中に高値タッチしたらナンピン買い増し
+
+
+            # 上昇トレンド（長期足200SMAが100SMAよりも下にある）の時、短期足でボリンジャーバンドの安値にタッチしたら価格を変数に保持
+            # その価格を現在価格が上回ったらロングでエントリー、高値タッチで利確　エントリー中に安値タッチしたらナンピン買い増し
 
             time.sleep(1)
 
