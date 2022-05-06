@@ -1,10 +1,13 @@
 #coding: utf-8
 from rich import print
 
+async def add_indicator(df):
+    df = await sma(df)
+    df = await bollingerBand(df)
+    df = await trend(df)
+    return df
+
 # ボリンジャーバンド
-from cmath import nan
-
-
 async def bollingerBand(df):
     df['mean'] = df['close'].rolling(window=20).mean()  # 移動平均
     df['std'] = df['close'].rolling(window=20).std() # 標準偏差
@@ -23,8 +26,8 @@ async def sma(df):
     return df
 
 # 環境認識
-async def env(df):
-    df['env'] = df['SMA200'] > df['SMA100'] # True なら下降トレンド
+async def trend(df):
+    df['trend'] = df['SMA200'] < df['SMA100'] # True なら上昇トレンド
     df['break_up'] = df['close'] > df['upper'] # 高値をcolseが上抜け
     df['break_down']  = df['close'] < df['lower'] # 安値をcolseが下抜け
     return df
