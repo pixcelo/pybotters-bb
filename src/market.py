@@ -1,5 +1,4 @@
 #coding: utf-8
-from this import d
 from config import Config
 from rich import print
 import pybotters
