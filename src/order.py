@@ -20,16 +20,18 @@ wss_url = {
 async def order(side, type, qty, price=None):
     while True:
         try:
-            async with pybotters.Client(base_url=url_test, apis=apis_test) as client:
+            async with pybotters.Client(base_url=url, apis=apis) as client:
                     r = await client.post(
                         '/private/linear/order/create', # USDT Perpetual
                         data = {
-                            'symbol': 'BTCUSD', # BTCUSDT - Maximum quantity of 100 for opening; Maximum quantity of 100 for closing
+                            'symbol': 'BTCUSDT', # BTCUSDT - Maximum quantity of 100 for opening; Maximum quantity of 100 for closing
                             'side': side, # Buy / Sell
                             'order_type': type, # Limit / Market
-                            'qty': qty,
-                            'price': price,
-                            'time_in_force': 'PostOnly'}
+                            'qty': qty, # number
+                            'price': price, # number
+                            'time_in_force': 'PostOnly',
+                            'reduce_only': False,
+                            'close_on_trigger': False}
                     )
                     data = await r.json()
                     print(data)
@@ -38,3 +40,13 @@ async def order(side, type, qty, price=None):
             print('Error: ', e)
             time.sleep(10)
         return data
+
+# TEST
+# async def main():
+#     data = await order('Sell', 'Market', 0.001, 31330)
+#     print(data)
+
+# try:
+#     asyncio.run(main())
+# except KeyboardInterrupt:
+#     pass
