@@ -67,58 +67,75 @@ async def fetch_market():
 
     return data
 
-async def fetch_kline(interval_1, interval_2, interval_3):
-    '''
-    1 - 1 minute
-    3 - 3 minutes
-    5 - 5 minutes
-    15 - 15 minutes
-    30 - 30 minutes
-    60 - 1 hour
-    120 - 2 hours
-    240 - 4 hours
-    360 - 6 hours
-    720 - 12 hours
-    D - 1 day
-    W - 1 week
-    M - 1 month
-    '''
+# USDT Perpetual Latest Information for Symbol
+# {'id': '112607529582', 'symbol': 'BTCUSDT', 'price': 36460, 'qty': 0.134, 'side': 'Sell', 'time': '2022-05-06T06:13:44.000Z', 'trade_time_ms': 1651817624868}
+async def fetch_latest_info():
     while True:
         try:
             async with pybotters.Client(apis=apis, base_url=url) as client:
-                # 長期足
-                ut = get_unixTimeStamp(interval_1)
-                r = await client.get('/public/linear/kline',
-                                    params={'symbol': symbol,
-                                            'interval': interval_1,
-                                            'from': ut
-                                    })
-                data_long = await r.json()
-
-                # 中期足
-                ut = get_unixTimeStamp(interval_2)
-                r = await client.get('/public/linear/kline',
-                                    params={'symbol': symbol,
-                                            'interval': interval_2,
-                                            'from': ut
-                    })
-                data_middle = await r.json()
-
-                # 短期足
-                ut = get_unixTimeStamp(interval_3)
-                r = await client.get('/public/linear/kline',
-                                    params={'symbol': symbol,
-                                            'interval': interval_3,
-                                            'from': ut
-                    })
-                data_short = await r.json()
-
+                r = await client.get('/public/linear/recent-trading-records', params={'symbol': symbol, 'limit': 5})
+                data = await r.json()
                 break
         except asyncio.TimeoutError as e:
             print('Error: ', e)
             time.sleep(10)
-    data = data_long, data_middle, data_short
+
     return data
+
+
+# kline
+# async def fetch_kline(interval_1, interval_2, interval_3):
+#     '''
+#     1 - 1 minute
+#     3 - 3 minutes
+#     5 - 5 minutes
+#     15 - 15 minutes
+#     30 - 30 minutes
+#     60 - 1 hour
+#     120 - 2 hours
+#     240 - 4 hours
+#     360 - 6 hours
+#     720 - 12 hours
+#     D - 1 day
+#     W - 1 week
+#     M - 1 month
+#     '''
+#     while True:
+#         try:
+#             async with pybotters.Client(apis=apis, base_url=url) as client:
+#                 # 長期足
+#                 ut = get_unixTimeStamp(interval_1)
+#                 r = await client.get('/public/linear/kline',
+#                                     params={'symbol': symbol,
+#                                             'interval': interval_1,
+#                                             'from': ut
+#                                     })
+#                 data_long = await r.json()
+
+#                 # 中期足
+#                 ut = get_unixTimeStamp(interval_2)
+#                 r = await client.get('/public/linear/kline',
+#                                     params={'symbol': symbol,
+#                                             'interval': interval_2,
+#                                             'from': ut
+#                     })
+#                 data_middle = await r.json()
+
+#                 # 短期足
+#                 ut = get_unixTimeStamp(interval_3)
+#                 r = await client.get('/public/linear/kline',
+#                                     params={'symbol': symbol,
+#                                             'interval': interval_3,
+#                                             'from': ut
+#                     })
+#                 data_short = await r.json()
+
+#                 break
+#         except asyncio.TimeoutError as e:
+#             print('Error: ', e)
+#             time.sleep(10)
+#     data = data_long, data_middle, data_short
+#     return data
 
 def get_unixTimeStamp(interval):
     ut = 0

@@ -18,6 +18,14 @@ class DataBase:
         db = self.client_database()
         loop = asyncio.get_event_loop()
         df = loop.run_until_complete(self.do_find(db))
+        df = df.rename(columns={'price': 'close'}) # カラム名の変更
+        df['close'] = df['close'].astype('float')
+        # datetime 型に変更し、この dataframe の index として設定
+        df.index = pd.DatetimeIndex(df['timestamp']) # インデックス設定（違う書き方？）
+        # df['timestamp'] = pd.to_datetime(df['timestamp'])
+        # df.set_index('timestamp', inplace=True)
+        # df.sort_index(inplace=True)
+        # print(df)
         return df
 
     def client_database(self):

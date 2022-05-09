@@ -1,12 +1,6 @@
 #coding: utf-8
 import matplotlib.pyplot as plt
 
-# データフレームのリサンプル
-async def reSample(rule, df):
-    df_resampled = df.resample(rule)
-    df_ohlc = df_resampled["close"].ohlc()
-    return df_ohlc
-
 # グラフを表示する
 async def plot_graph(df):
     plt.xlabel('Date')
