@@ -1,11 +1,11 @@
 # python_bybit
+REST API 1M
 
-## モジュール
-matplotlib
-pandas
-numpy
+## Run
+```
+python3 bot.py
+```
 
-## 戦略
-ボリンジャーバンド
-移動平均線
-長期の順張り + 短期の逆張り
+## Reference
+- [testnet](https://testnet.bybit.com/ja-JP)
+- [docs linear](https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-authentication)
