@@ -54,23 +54,17 @@ async def main():
                 'close': 'float'
             })
 
-            # オーダー（アクティブな注文）を確認（指値を出したが、約定していないものをチェック）
+            # 約定していないオーダー（アクティブな注文）を確認
             buy_order, sell_order = get_active_order(order)
 
-            # オーダーがある場合
+            # n秒以上経過したオーダーがあればキャンセル
             if buy_order is not None:
-                # n秒以上経過したアクティブな注文があれば、キャンセルして指値を出し直す
-                if is_within_seconds('2023-02-19T22:38:27Z' , 30):
-                    data = await limit(client, 'Buy', qty, 220000)
+                if is_within_seconds(buy_order['created_time'] , 30):
+                    data = await cancel(client, buy_order['order_id'])
 
             if sell_order is not None:
-                # n秒以上経過したアクティブな注文があれば、キャンセルして指値を出し直す
-                if is_within_seconds('2023-02-19T22:38:27Z' , 30):
-                    data = await limit(client, 'Sell', qty, 220000)
-
-
-
-            #　オーダーがなければ指値を出す
+                if is_within_seconds(sell_order['created_time'] , 30):
+                    data = await cancel(client, sell_order['order_id'])
 
 
             cl = df['close'].values
@@ -95,7 +89,6 @@ async def main():
             if buy_position is None:
                 data = await market(client, 'Buy', qty)
                 # data = await limit(client, 'Buy', qty, buy_price[atr_period])
-                #     logger.info(data)
                 #　ログをとる関数
                 # 通知する関数
 
@@ -120,6 +113,7 @@ async def market(client, side, qty):
         'close_on_trigger': False
     })
     data = await res.json()
+    logger.info(data)
     return data
 
 async def limit(client, side, qty, price):
@@ -134,6 +128,7 @@ async def limit(client, side, qty, price):
         'close_on_trigger': False
     })
     data = await res.json()
+    logger.info(data)
     return data
 
 # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-getactive
@@ -165,13 +160,14 @@ def get_position(position):
 
     return buy_position, sell_position
 
-async def cancel(client):
+async def cancel(client, order_id):
     res = await client.post('/private/linear/order/cancel', data={
         'symbol': symbol,
-        # 'order_id': '',
+        'order_id': order_id,
         # 'order_link_id': ''
     })
     data = await res.json()
+    logger.info(data)
     return data
 
 # アクティブなオーダーの経過時間を判定
