@@ -55,15 +55,15 @@ async def main():
             })
 
             # 約定していないオーダー（アクティブな注文）を確認
-            buy_order, sell_order = get_active_order(order)
+            buy_order, sell_order = get_active_order(order['result']['data'])
 
             # n秒以上経過したオーダーがあればキャンセル
             if buy_order is not None:
-                if is_within_seconds(buy_order['created_time'] , 30):
+                if is_within_seconds(buy_order['created_time'] , 30) == False:
                     data = await cancel(client, buy_order['order_id'])
 
             if sell_order is not None:
-                if is_within_seconds(sell_order['created_time'] , 30):
+                if is_within_seconds(sell_order['created_time'] , 30 )== False:
                     data = await cancel(client, sell_order['order_id'])
 
 
@@ -173,7 +173,7 @@ async def cancel(client, order_id):
 # アクティブなオーダーの経過時間を判定
 def is_within_seconds(date_str, seconds):
     now = datetime.utcnow()
-    target_time = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+    target_time = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
     # 現在時刻と指定した時刻の差分を計算
     elapsed_time = now - target_time
     # 経過時間が指定した秒数以内ならTrueを返す
