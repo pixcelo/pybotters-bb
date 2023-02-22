@@ -55,7 +55,21 @@ async def main():
             })
 
             # オーダー（アクティブな注文）を確認（指値を出したが、約定していないものをチェック）
-            # アクティブな注文があれば、約定までN回待機する
+            buy_order, sell_order = get_active_order(order)
+
+            # オーダーがある場合
+            if buy_order is not None:
+                # n秒以上経過したアクティブな注文があれば、キャンセルして指値を出し直す
+                if is_within_seconds('2023-02-19T22:38:27Z' , 30):
+                    data = await limit(client, 'Buy', qty, 220000)
+
+            if sell_order is not None:
+                # n秒以上経過したアクティブな注文があれば、キャンセルして指値を出し直す
+                if is_within_seconds('2023-02-19T22:38:27Z' , 30):
+                    data = await limit(client, 'Sell', qty, 220000)
+
+
+
             #　オーダーがなければ指値を出す
 
 
