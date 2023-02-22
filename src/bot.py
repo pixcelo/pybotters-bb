@@ -63,7 +63,7 @@ async def main():
                     data = await cancel(client, buy_order['order_id'])
 
             if sell_order is not None:
-                if is_within_seconds(sell_order['created_time'] , 30 )== False:
+                if is_within_seconds(sell_order['created_time'] , 30 ) == False:
                     data = await cancel(client, sell_order['order_id'])
 
 
