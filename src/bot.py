@@ -98,6 +98,7 @@ async def main():
             # 待機(60秒)
             await asyncio.sleep(60.0)
 
+# 成行注文
 async def market(client, side, qty):
     res = await client.post('/private/linear/order/create', data={
         'symbol': symbol,
@@ -112,6 +113,7 @@ async def market(client, side, qty):
     logger.info(data)
     return data
 
+# 指値注文
 async def limit(client, side, qty, price):
     res = await client.post('/private/linear/order/create', data={
         'symbol': symbol,
@@ -127,6 +129,7 @@ async def limit(client, side, qty, price):
     logger.info(data)
     return data
 
+# アクティブな注文を取得
 # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-getactive
 # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#order-status-order_status-stop_order_status
 def get_active_order(order):
@@ -141,6 +144,7 @@ def get_active_order(order):
 
     return buy_order, sell_order
 
+# ポジションを取得
 # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-myposition
 def get_position(position):
     buy_position = None
@@ -156,6 +160,7 @@ def get_position(position):
 
     return buy_position, sell_position
 
+# キャンセル
 async def cancel(client, order_id):
     res = await client.post('/private/linear/order/cancel', data={
         'symbol': symbol,
@@ -174,6 +179,7 @@ def is_within_seconds(date_str, seconds):
     elapsed_time = now - target_time
     # 経過時間が指定した秒数以内ならTrueを返す
     return elapsed_time <= timedelta(seconds=seconds)
+
 
 if __name__ == '__main__':
     try:
