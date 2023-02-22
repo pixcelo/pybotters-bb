@@ -12,6 +12,7 @@ test_net = 'https://api-testnet.bybit.com'
 main_net = 'https://api.bybit.com'
 
 # settings
+symbol = 'BTCUSDT'
 qty = 0.001
 
 # apis
@@ -27,12 +28,11 @@ async def main():
         while True:
             # REST APIデータ並列リクエスト
             resps = await asyncio.gather(
-                client.get('public/linear/kline', params={
-                    'symbol': 'BTCUSD', 'interval': 1, 'from': int(time.time()) - 3600
-                }),
-                # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-getactive
-                client.get('private/linear/order/list', params={'symbol': 'BTCUSD'}),
-                client.get('private/linear/position/list', params={'symbol': 'BTCUSD'}),
+                client.get('/public/linear/kline', params={
+                    'symbol': symbol, 'interval': 1, 'from': int(time.time()) - 3600
+                }), 
+                client.get('/private/linear/order/list', params={'symbol': symbol}),
+                client.get('/private/linear/position/list', params={'symbol': symbol}),
             )
             kline, order, position = await asyncio.gather(*[r.json() for r in resps])
 
@@ -95,7 +95,7 @@ async def main():
 
 async def market(client, side, qty):
     res = await client.post('/private/linear/order/create', data={
-        'symbol': 'BTCUSDT',
+        'symbol': symbol,
         'side': side,
         'order_type': 'Market',
         'qty': qty,
@@ -108,7 +108,7 @@ async def market(client, side, qty):
 
 async def limit(client, side, qty, price):
     res = await client.post('/private/linear/order/create', data={
-        'symbol': 'BTCUSDT',
+        'symbol': symbol,
         'side': side,
         'order_type': 'Limit',
         'qty': qty,
@@ -122,7 +122,7 @@ async def limit(client, side, qty, price):
 
 async def cancel(client):
     res = await client.post('/private/linear/order/cancel', data={
-        'symbol': 'BTCUSDT',
+        'symbol': symbol,
         # 'order_id': '',
         # 'order_link_id': ''
     })
