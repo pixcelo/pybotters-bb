@@ -61,9 +61,6 @@ async def main():
             #　オーダーがなければ指値を出す
 
 
-            # ポジションを確認（約定済みのオーダーをチェック、損切りの判断）
-            # ポジションがなければ指値を出す
-
             cl = df['close'].values
             hi = df['high'].values
             lo = df['low'].values
@@ -79,13 +76,20 @@ async def main():
             buy_price = cl - (atr * threshold)
             sell_price = cl + (atr * threshold)
 
-            
-            if True:
+            # ポジションを確認（約定済みのオーダーをチェック、損切りの判断）
+            buy_position, sell_position = get_position(position['result'])
+
+            # ポジションがなければ指値を出す
+            if buy_position is None:
                 data = await market(client, 'Buy', qty)
                 # data = await limit(client, 'Buy', qty, buy_price[atr_period])
                 #     logger.info(data)
                 #　ログをとる関数
                 # 通知する関数
+
+            if sell_position is None:
+                data = await market(client, 'Sell', qty)
+                # data = await limit(client, 'Sell', qty, sell_price[atr_period])
 
             # 注文する関数
             # ポジションを管理する関数
@@ -119,6 +123,21 @@ async def limit(client, side, qty, price):
     })
     data = await res.json()
     return data
+
+# https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-myposition
+def get_position(position):
+    buy_position = None
+    sell_position = None
+
+    for pos in position:
+        if pos['size'] == 0:
+            continue
+        if pos['side'] == 'Buy':
+            buy_position = pos
+        else:
+            sell_position = pos
+
+    return buy_position, sell_position
 
 async def cancel(client):
     res = await client.post('/private/linear/order/cancel', data={
