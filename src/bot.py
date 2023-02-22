@@ -89,15 +89,11 @@ async def main():
             if buy_position is None:
                 data = await market(client, 'Buy', qty)
                 # data = await limit(client, 'Buy', qty, buy_price[atr_period])
-                #　ログをとる関数
                 # 通知する関数
 
             if sell_position is None:
                 data = await market(client, 'Sell', qty)
                 # data = await limit(client, 'Sell', qty, sell_price[atr_period])
-
-            # 注文する関数
-            # ポジションを管理する関数
 
             # 待機(60秒)
             await asyncio.sleep(60.0)
@@ -184,3 +180,5 @@ if __name__ == '__main__':
         asyncio.run(main())
     except KeyboardInterrupt:
         pass
+    except Exception as e:
+        pass # LINEに通知
