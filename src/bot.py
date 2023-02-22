@@ -90,10 +90,14 @@ async def main():
                 data = await market(client, 'Buy', qty)
                 # data = await limit(client, 'Buy', qty, buy_price[atr_period])
                 # 通知する関数
+            else:
+                pass # 損切りの条件
 
             if sell_position is None:
                 data = await market(client, 'Sell', qty)
                 # data = await limit(client, 'Sell', qty, sell_price[atr_period])
+            else:
+                pass # 損切りの条件
 
             # 待機(60秒)
             await asyncio.sleep(60.0)
