@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import talib
 import math
-import datetime as dt
+from datetime import datetime, timedelta
 import time
 from loguru import logger
 
@@ -31,13 +31,12 @@ async def main():
                 client.get('/public/linear/kline', params={
                     'symbol': symbol, 'interval': 1, 'from': int(time.time()) - 3600
                 }), 
-                client.get('/private/linear/order/list', params={'symbol': symbol}),
+                client.get('/private/linear/order/list',
+                            params={'symbol': symbol, 'order_status': 'New'}),
                 client.get('/private/linear/position/list', params={'symbol': symbol}),
             )
             kline, order, position = await asyncio.gather(*[r.json() for r in resps])
 
-            # シグナル計算
-            # klineからdfを作る ATRを計算、シグなる判定、ロジック
             df = pd.DataFrame(kline['result'],
                     columns=[
                     'open_time',
@@ -55,8 +54,7 @@ async def main():
                 'close': 'float'
             })
 
-            # オーダーを確認（指値を出したが、約定していないものをチェック）
-            # 画面で言うとアクティブな注文、買いの注文、売りの注
+            # オーダー（アクティブな注文）を確認（指値を出したが、約定していないものをチェック）
             # アクティブな注文があれば、約定までN回待機する
             #　オーダーがなければ指値を出す
 
@@ -124,6 +122,20 @@ async def limit(client, side, qty, price):
     data = await res.json()
     return data
 
+# https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-getactive
+# https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#order-status-order_status-stop_order_status
+def get_active_order(order):
+    buy_order = None
+    sell_order = None
+
+    for o in order:
+        if o['side'] == 'Buy':
+            buy_order = o
+        else:
+            sell_order = o
+
+    return buy_order, sell_order
+
 # https://bybit-exchange.github.io/docs-legacy/futuresV2/linear/#t-myposition
 def get_position(position):
     buy_position = None
@@ -147,6 +159,15 @@ async def cancel(client):
     })
     data = await res.json()
     return data
+
+# アクティブなオーダーの経過時間を判定
+def is_within_seconds(date_str, seconds):
+    now = datetime.utcnow()
+    target_time = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+    # 現在時刻と指定した時刻の差分を計算
+    elapsed_time = now - target_time
+    # 経過時間が指定した秒数以内ならTrueを返す
+    return elapsed_time <= timedelta(seconds=seconds)
 
 if __name__ == '__main__':
     try:
